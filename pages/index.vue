@@ -1,0 +1,143 @@
+<template>
+  <div class="layout">
+      <Layout>
+          <Header :style="{position: 'fixed', width: '100%', height:'100px', zIndex:'10'}">
+            <Menu mode="horizontal" theme="dark">
+              <Row id='infos'>
+                <i-col span='12' class='titulo'>
+                  <h1>Rastreador de Moedas <Button shape='circle' icon="refresh" @click="getCoins"></Button></h1>
+                </i-col>
+                <i-col span='4'>
+                  <h4>Dólar</h4>
+                  <span><small>R$</small> {{formatPrice(vr_dolar)}} </span>
+                </i-col>
+                <i-col span='4' class='vr_aplicado'>
+                  <h4>Valor Aplicado</h4>
+                  <ValorAplicado />
+                  <span><small>R$</small> {{formatPrice(valorAplicado)}} </span>
+                </i-col>
+                <i-col span='4'>
+                  <h4>Saldo Atualizado</h4>
+                  <span><small>R$</small> {{formatPrice(saldo)}} </span>
+                </i-col>
+              </Row>
+            </Menu>
+          </Header>
+          <Content :style="{padding: '10px 50px', margin: '120px 0 0'}">
+            <div v-if="table.columns">
+              <Table :loading='table.loading' :columns='table.columns' :data='table.coins'></Table>
+            </div>
+          </Content>
+          <Footer class="layout-footer-center text-right" :style="{textAlign: 'right'}">2018 &copy; Batora.net</Footer>
+      </Layout>
+  </div>
+</template>
+
+<script>
+import {coinMkt} from '@/plugins/coinmarketcap'
+import { mapState } from 'vuex'
+import ValorAplicado from '~/components/ValorAplicado.vue'
+
+export default {
+  components: {ValorAplicado},
+  data() {
+    return {
+      vr_dolar: 0.00,
+      saldo: 0.00,
+
+      table: {
+        loading: false,
+        columns: [
+          {
+            title: 'Nome',
+            key: 'name'
+          },
+          {
+            title: 'Symbol',
+            key: 'symbol'
+          },
+          {
+            title: 'Price USD',
+            key: 'price_usd',
+            sortable: true,
+            align: 'right',
+            width: '150px'
+          },
+          {
+            title: 'Price BTC',
+            key: 'price_btc',
+            sortable: true,
+            align: 'right',
+            width: '150px'
+          },
+        ],
+        coins: []
+      }
+    }
+  },
+  fetch({ store }) {
+    // store.get('valorAplicado')
+  },
+  computed: mapState([
+    'valorAplicado'
+  ]),
+  mounted() {
+    this.getCoins()
+  },
+  methods: {
+    getCoins: function() {
+      this.loading = true
+      let set = []
+
+      coinMkt.multi(coins => {
+        set.push(coins.get("BTC"))
+        set.push(coins.get("ETH"))
+        this.table.coins = set
+        this.table.loading = false
+      })
+    },
+    formatPrice(value) {
+        let val = (value/1).toFixed(2).replace('.', ',')
+        return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+    }
+  }
+}
+</script>
+
+
+<style>
+  h1{ color: #FFF; line-height: 90px; }
+  h4{ color: rgba(255,255,255,0.5);  line-height: 20px; padding: 20px 0 0;  text-transform: uppercase; font-size: 12px; font-weight: normal; text-align: right; }
+
+  #infos{
+    color: #FFF;
+    padding: 0;
+  }
+  #infos > .ivu-col{
+    line-height: 1em;
+  }
+  #infos > .ivu-col > span{
+    text-align: right;
+    line-height: 30px;
+    font-size: 1.3em;
+    display: block;
+  }
+  #infos .vr_aplicado{
+    text-align: right;
+  }
+  #infos .vr_aplicado span{
+    color: #F5A623;
+    display: inline-block;
+  }
+  #infos .vr_aplicado a{
+    color: #FFF;
+    font-size: 0.8em;
+    border-bottom: 1px dotted #FFF;
+    margin: 10px;
+  }
+  #infos .vr_aplicado a .ivu-icon{
+    -webkit-transform: scale(-1, 1);
+    transform: scale(-1, 1);
+  }
+</style>
+
