@@ -6,8 +6,18 @@ export const state = () => ({
 })
 
 export const mutations = {
+  //Atualiza valor inicial
   setValor(state, valor) {
-    //atualiza no status
     state.valorAplicado = valor
+  },
+
+  //Insere moeda na lista de verificações
+  pushMoeda(state, valor) {
+    state.moedas.push(valor)
+  },
+  
+  //Remove moeda da lista
+  deleteMoeda(state, moeda){
+
   }
 }

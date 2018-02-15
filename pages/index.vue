@@ -13,7 +13,7 @@
                 </i-col>
                 <i-col span='4' class='vr_aplicado'>
                   <h4>Valor Aplicado</h4>
-                  <ValorAplicado />
+                  <valor-form />
                   <span><small>R$</small> {{formatPrice(valorAplicado)}} </span>
                 </i-col>
                 <i-col span='4'>
@@ -22,6 +22,7 @@
                 </i-col>
               </Row>
             </Menu>
+            <moeda-form id='add-moeda' />
           </Header>
           <Content :style="{padding: '10px 50px', margin: '120px 0 0'}">
             <div v-if="table.columns">
@@ -36,10 +37,11 @@
 <script>
 import {coinMkt} from '@/plugins/coinmarketcap'
 import { mapState } from 'vuex'
-import ValorAplicado from '~/components/ValorAplicado.vue'
+import ValorForm from '~/components/ValorForm.vue'
+import MoedaForm from '~/components/MoedaForm.vue'
 
 export default {
-  components: {ValorAplicado},
+  components: {ValorForm, MoedaForm},
   data() {
     return {
       vr_dolar: 0.00,
@@ -79,7 +81,8 @@ export default {
     // store.get('valorAplicado')
   },
   computed: mapState([
-    'valorAplicado'
+    'valorAplicado',
+    'moedas'
   ]),
   mounted() {
     this.getCoins()
@@ -138,6 +141,13 @@ export default {
   #infos .vr_aplicado a .ivu-icon{
     -webkit-transform: scale(-1, 1);
     transform: scale(-1, 1);
+  }
+
+  #add-moeda {
+    display: block;
+    position: relative;
+    z-index: 5;
+    text-align: center;
   }
 </style>
 
