@@ -14,7 +14,7 @@
           <Row>
             <i-col>
             <FormItem label="Moeda">
-                <i-select v-model="moeda" size='large' filterable @on-change='updateValues()'>
+                <i-select ref='moeda' v-model="moeda" size='large' filterable @on-change='updateValues()'>
                   <Option v-for="option in coinsList" :value="option.symbol" :key="option.id">{{ option.symbol }} <small>{{ option.name }}</small></Option>
                 </i-select>
             </FormItem>
