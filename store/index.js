@@ -1,9 +1,13 @@
 import createPersistedState from 'vuex-persistedstate'
+import * as _ from 'lodash'
 
 export const state = () => ({
     valorAplicado: 0,
     moedas: []
 })
+
+export const actions = {
+}
 
 export const mutations = {
   //Atualiza valor inicial
@@ -17,7 +21,11 @@ export const mutations = {
   },
   
   //Remove moeda da lista
-  deleteMoeda(state, moeda){
-
+  deleteMoeda(state, moedaID){
+    if(moedaID=='') return
+    //Remove moeda da lista a partir do ID
+    let moeda = _.remove(state.moedas, (m)=>{
+      return m.id == moedaID
+    })
   }
 }
