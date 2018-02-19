@@ -7,12 +7,12 @@
         ok-text="Salvar"
         cancel-text="Cancelar"
         @on-ok="save"
-        @on-cancel="cancel">
-        <Form label-position="left" @submit.native.prevent>
+        @on-cancel="cancel"
+        class-name='modal'
+        width='250px'>
+        <Form label-position="left">
           <FormItem label="Valor">
-              <InputNumber v-model="valor" :precision='2' size='large'>
-                <span slot="prepend">R$</span>
-              </InputNumber>
+              <money ref='valor' v-model="valor" v-bind='{prefix:"R$ "}' class='ivu-input ivu-input-large' @keyup.enter='save'></money>
           </FormItem>
       </Form>
     </Modal>
@@ -33,18 +33,16 @@
             open () {
                 this.modal_ajuste = true
                 this.valor = this.$store.state.valorAplicado
+                this.$nextTick(() => this.$refs.valor.$el.focus())
             },
             save () {
                 this.$Message.success('Valor Atualizado')
                 //salva na store e consequentemente, persiste informação
                 this.$store.commit('setValor', this.valor)
+                this.modal_ajuste = false
             },
             cancel () {
             }
         }
     }
 </script>
-
-<style scoped>
-  
-</style>

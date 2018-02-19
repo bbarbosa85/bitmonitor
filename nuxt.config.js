@@ -3,7 +3,7 @@ module.exports = {
   ** Headers of the page
   */
   head: {
-    title: 'bitmonitor',
+    title: 'BitMonitor',
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
@@ -65,6 +65,7 @@ module.exports = {
   plugins: [
     { src: '~/plugins/coinmarketcap', ssr: false },
     { src: '~/plugins/iview.js', ssr: true },
+    { src: '~/plugins/inputmoney.js', ssr: false },
     { src: '~/plugins/localstorage.js', ssr: false }
   ],
 }

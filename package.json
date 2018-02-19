@@ -16,10 +16,12 @@
     "fs": "0.0.1-security",
     "iview": "^2.9.2",
     "js-cookie": "^2.2.0",
+    "lodash": "^4.17.5",
     "net": "^1.0.2",
     "node-coinmarketcap": "^0.2.0",
     "nuxt": "^1.0.0",
     "tls": "0.0.1",
+    "v-money": "^0.8.1",
     "vuex-persistedstate": "^2.4.2"
   },
   "devDependencies": {
