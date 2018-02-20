@@ -65,7 +65,6 @@ module.exports = {
   plugins: [
     { src: '~/plugins/coinmarketcap', ssr: false },
     { src: '~/plugins/iview.js', ssr: true },
-    { src: '~/plugins/inputmoney.js', ssr: false },
     { src: '~/plugins/localstorage.js', ssr: false }
   ],
 }

@@ -288,9 +288,13 @@ export default {
     text-align: center;
     top: -25px;
   }
-  .v-money{ text-align: right; }
+  
   .green { color: green }
   .red { color: red }
+  .text-right,
+  .text-right input,
+  .number,
+  .number input { text-align: right }
 
   .ivu-form-item{
     margin-bottom: 15px;

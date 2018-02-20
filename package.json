@@ -21,7 +21,6 @@
     "node-coinmarketcap": "^0.2.0",
     "nuxt": "^1.0.0",
     "tls": "0.0.1",
-    "v-money": "^0.8.1",
     "vuex-persistedstate": "^2.4.2"
   },
   "devDependencies": {

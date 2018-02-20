@@ -19,7 +19,7 @@
                 </i-select>
             </FormItem>
             <FormItem label="Quantidade Adiquirida">
-                <money v-model="qtd" v-bind='{precision: 8, prefix:moeda + " "}' class='ivu-input ivu-input-large'></money>
+                <i-input v-model="qtd" size='large' class="number"></i-input>
             </FormItem>
           
               <FormItem label="Exchange">
@@ -32,8 +32,12 @@
           <Row style='background-color: #fbfbfb'>
             <i-col>
               <FormItem label='Valor de Compra'>
-                  <money v-model="compra.usd" v-bind="{prefix:'U$ ', precision: 2}" class='ivu-input ivu-input-large' ></money>
-                  <money v-model="compra.btc" v-bind="{prefix:'BTC ', precision: 8}" class='ivu-input ivu-input-large' style="margin-top:5px"></money>
+                <i-input v-model="compra.usd" size='large' class="number">
+                  <span slot="prepend">U$</span>
+                </i-input>
+                <i-input v-model="compra.btc" size='large' class="number" style="margin-top:5px">
+                  <span slot="prepend">BTC</span>
+                </i-input>
               </FormItem>
             </i-col>
           </Row>
@@ -136,5 +140,10 @@ export default {
   color: rgba(0,0,0,0.3);
   font-size: 12px;
   display: block;
+}
+.ivu-input-group-prepend span{
+  display: inline-block;
+  width: 30px;
+  text-align: right;
 }
 </style>

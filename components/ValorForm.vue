@@ -11,8 +11,10 @@
         class-name='modal'
         width='250px'>
         <Form label-position="left">
-          <FormItem label="Valor">
-              <money ref='valor' v-model="valor" v-bind='{prefix:"R$ "}' class='ivu-input ivu-input-large' @keyup.enter='save'></money>
+          <FormItem label="Valor" ref='valor'>
+              <i-input  v-model="valor" size='large' @keyup.enter='save' class='number'>
+                  <span slot="prepend">R$</span>
+                </i-input>
           </FormItem>
       </Form>
     </Modal>
