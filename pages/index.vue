@@ -81,13 +81,6 @@ export default {
             key: 'exchange',
           },
           {
-            title: 'Qtd',
-            key: 'quantidade',
-            sortable: true,
-            align: 'right',
-            width: '150px'
-          },
-          {
             title: 'Valor Atual (U$)',
             key: 'priceUSD',
             render: (h, params) => {
@@ -96,6 +89,13 @@ export default {
                     h('small', {class:'btc'}, this.formatPrice(params.row.priceBTC, 8))
                 ]);
             },
+            sortable: true,
+            align: 'right',
+            width: '150px'
+          },
+          {
+            title: 'Qtd',
+            key: 'quantidade',
             sortable: true,
             align: 'right',
             width: '150px'
@@ -114,19 +114,6 @@ export default {
             },
           },
           {
-            title: 'Total',
-            key: 'totalUSD',
-            sortable: true,
-            align: 'right',
-            width: '150px',
-            render: (h, params) => {
-                return h('div', [
-                    h('span', this.formatPrice(params.row.totalUSD)),
-                    h('small', {class:'btc'}, this.formatPrice(params.row.totalBTC, 8))
-                ]);
-            },
-          },
-          {
             title: 'Ganhos',
             key: 'profitUSD',
             sortable: true,
@@ -136,6 +123,19 @@ export default {
                 return h('div', [
                     h('span', {class: this.formatClass(params.row.profitUSD)}, params.row.fProfitUSD),
                     h('small', {class:'btc ' + this.formatClass(params.row.profitBTC)}, params.row.fProfitBTC)
+                ]);
+            },
+          },
+          {
+            title: 'Total',
+            key: 'totalUSD',
+            sortable: true,
+            align: 'right',
+            width: '150px',
+            render: (h, params) => {
+                return h('div', [
+                    h('span', this.formatPrice(params.row.totalUSD)),
+                    h('small', {class:'btc'}, this.formatPrice(params.row.totalBTC, 8))
                 ]);
             },
           },
