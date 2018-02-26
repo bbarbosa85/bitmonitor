@@ -1,0 +1,30 @@
+
+/* DIALOG */
+.el-dialog__header{
+  border-bottom: 1px dotted rgba(0,0,0,0.2);
+  padding-bottom: 15px;
+
+  .el-dialog__title{
+    font-size: 14px;
+    font-weight: 700;
+    color: #9aa0ad;
+  }
+}
+.el-dialog__body{
+  padding: 20px
+}
+
+
+/* FORM */
+.el-input-group__append, 
+.el-input-group__prepend{
+  padding: 0 10px;
+}
+.el-form-item__label{
+  font-size: 13px;
+}
+
+/* TABLE */
+// .el-table__header th{
+//   background-color: red;
+// }

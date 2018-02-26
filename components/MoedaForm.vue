@@ -1,49 +1,51 @@
 <template>
-  <span>
-    <h2><Button type='primary' size='large' shape='circle' icon="plus" @click="open()"></Button></h2>
-    <Modal
-        v-model="modalMoeda"
-        :title="title"
-        ok-text="Salvar"
-        cancel-text="Cancelar"
-        @on-ok="save"
-        @on-cancel="clean"
-        class-name='moedaform'
-        width='410px'>
-        <Form ref="moedaForm" :label-width="140">
-          <Row>
-            <i-col>
-            <FormItem label="Moeda">
-                <i-select v-model="moeda" size='large' filterable @on-change='updateValues()'>
-                  <Option v-for="option in coinsList" :value="option.symbol" :key="option.id">{{ option.symbol }} <small>{{ option.name }}</small></Option>
-                </i-select>
-            </FormItem>
-            <FormItem label="Quantidade Adiquirida">
-                <i-input v-model="qtd" size='large' class="number"></i-input>
-            </FormItem>
-          
-              <FormItem label="Exchange">
-                  <i-select v-model="exchange" size='large' filterable>
-                    <Option v-for="(option, index) in exchangeList" :value="option" :key="index">{{ option }}</Option>
-                  </i-select>
-              </FormItem>
-            </i-col>
-          </Row>
-          <Row style='background-color: #fbfbfb'>
-            <i-col>
-              <FormItem label='Valor de Compra'>
-                <i-input v-model="compra.usd" size='large' class="number">
-                  <span slot="prepend">U$</span>
-                </i-input>
-                <i-input v-model="compra.btc" size='large' class="number" style="margin-top:5px">
-                  <span slot="prepend">BTC</span>
-                </i-input>
-              </FormItem>
-            </i-col>
-          </Row>
-      </Form>
-    </Modal>
-  </span>
+  <div class='moeda-dialog'>
+    <el-button :type='type' size='large' class='circle' @click="open()">
+      <slot></slot>
+    </el-button>
+    <el-dialog
+      :visible.sync="modal_moeda"
+      :title="title"
+      width='430px'
+      id='moeda-form'
+      :append-to-body='true'
+      style="padding:0"
+      @close='clean'>
+
+      <el-form ref="modal-form" :model='form' label-width="140px" :rules="rules">
+        <el-form-item label="Moeda" prop='moeda'>
+            <el-select v-model="form.moeda" size='large' filterable :default-first-option='true' @change='updateValues' placeholder="Selecione" no-data-text='Sem dados' no-match-text='Nenhum resultado' style="width: 100%;">
+              <el-option v-for="option in coinsList" :value="option.symbol" :key="option.id">{{ option.symbol }} <small>{{ option.name }}</small></el-option>
+            </el-select>
+        </el-form-item>
+
+        <el-form-item label='Valor de Compra' prop='compra'>
+          <el-input v-model="form.compra.usd" size='large' class="number" style="width: 100%;">
+            <span slot="prepend">U$</span>
+          </el-input>
+          <el-input v-model="form.compra.btc" size='large' class="number" style="margin-top:5px; width: 100%;">
+            <span slot="prepend">BTC</span>
+          </el-input>
+        </el-form-item>
+
+        <el-form-item label="Quantidade" prop='quantidade'>
+            <el-input v-model="form.quantidade" size='large' class="number" style="width: 100%;"></el-input>
+            <div v-if='form.moeda!=="" && form.quantidade>0' class='text-right'><small>Equivalencia U$: {{equivalenciaUSD | currency}}</small></div>
+        </el-form-item>
+    
+        <el-form-item label="Exchange" prop='exchange'>
+            <el-select v-model="form.exchange" size='large' filterable :default-first-option='true' placeholder="Selecione" no-data-text='Sem dados' no-match-text='Nenhum resultado' style="width: 100%;">
+              <el-option v-for="(option, index) in exchangeList" :value="option" :key="index">{{ option }}</el-option>
+            </el-select>
+        </el-form-item>
+      </el-form>
+
+      <span slot="footer" class="dialog-footer">
+          <el-button type="primary" @click="submit">Salvar</el-button>
+          <el-button @click="cancel">Cancelar</el-button>
+      </span>
+    </el-dialog>
+  </div>
 </template>
 
 <script>
@@ -55,17 +57,52 @@ export default {
   props: {
     title: {
       type: String
+    },
+
+    type: {
+      type: String,
+      default: 'primary'
+    },
+
+    moedaId: {
+      type: String,
+      default: null
     }
   },
+
   data () {
+
+      let validators = {
+        compra: (rule, value, callback) => {
+          if(value.usd <= 0 || value.usd == ''){
+            callback(new Error('Favor informar o valor de compra em USD'))
+          }
+          if(value.btc <= 0 || value.btc == ''){
+            callback(new Error('Favor informar o valor de compra em BTC'))
+          }
+          callback()
+        },
+
+        quantidade: (rule, value, callback) => {
+          if(value <= 0 || value == ''){
+            callback(new Error('Favor informar uma quantidade maior que 0'))
+          }
+          callback()
+
+        }
+      }
+
       return {
-        modalMoeda: false,
-        moeda: '',
-        exchange: '',
-        qtd: 0.00,
-        compra: {
-          usd : 0.00,
-          btc : 0.00
+        modal_moeda: false,
+
+        form: {
+          moeda: '',
+          exchange: '',
+          quantidade: 0.00,
+          compra: {
+            usd : 0.00,
+            btc : 0.00
+          }
         },
 
         coinsList: {},
@@ -75,9 +112,27 @@ export default {
           'BitcoinTrade',
           'Bittrex',
           'FoxBit',
-        ]
+        ],
+
+        rules: {
+          moeda: [
+            { required: true, message:'Campo deve ser preenchido', trigger: 'blur'}
+          ],
+          exchange: [
+            { required: true, message:'Campo deve ser preenchido', trigger: 'blur'}
+          ],
+          quantidade: [
+            { required: true, message:'Campo deve ser preenchido', trigger: 'blur'},
+            { validator: validators.quantidade, trigger: 'blur'}
+          ],
+          compra: [
+            { required: true, message:'Campo deve ser preenchido', trigger: 'blur'},
+            { validator: validators.compra, trigger: 'blur'}
+          ],
+        }
       }
   },
+
   mounted: function(){
     //Anota moedas do servidor remoto
     coinMkt.getAll((data)=>{
@@ -86,64 +141,89 @@ export default {
       }
     })
   },
+
+  computed: {
+    equivalenciaUSD: function(){
+      return this.form.compra.usd * this.form.quantidade
+    }
+  },
+
   methods: {
+
     open () {
-      this.modalMoeda = true
+      this.modal_moeda = true
+
+      //Adicionando moeda
+      if(this.moedaId == null){
+        //coloca o foco no campo de moeda
+        // this.$nextTick(() => this.$refs.focus.$el.querySelector('input').focus())
+      }
+      //Editando moeda ja salva
+      else{
+        this.form = this.$store.getters.moedaById(this.moedaId)
+      }
     },
-    save () {
-      this.$Message.success('Valor Atualizado')
-      //salva na store e consequentemente, persiste informação
-      this.$store.commit('pushMoeda', {
-        'id':       Math.random().toString(36).substring(7),
-        'moeda':    this.moeda,
-        'exchange': this.exchange,
-        'quantidade': this.qtd,
-        'compraUSD': this.compra.usd,
-        'compraBTC': this.compra.btc,
+
+    submit(){
+      this.$nextTick(() => {
+        this.$refs['modal-form'].validate((valid)=>{
+          if(valid){
+            this.save()
+          }else{
+            this.$message.error('Existem erros no formulario')
+            return false
+          }
+        })
       })
-      this.clean();
+    },
+
+    save () {
+      //Verifica se a moeda foi identificada, senão não salva
+      if(this.form.moeda == ''){
+        this.$message.error('Moeda não foi identificada')
+        return false
+      }
+
+      //salva na store e consequentemente, persiste informação
+      this.$store.commit('saveMoeda', _.cloneDeep(this.form))
       this.$emit('change')
+      this.$message.success('Valor Atualizado')
+      this.modal_moeda = false
     },
-    clean() {
-      this.moeda      = ''
-      this.exchange   = ''
-      this.qtd        = 0.00
-      this.compra.usd = 0.00
-      this.compra.btc = 0.00
-    },
+
     updateValues(){
       if(this.moeda=='') return
       //Recupera valor selecionado e atualiza valores relacionados
-      let moeda = _.find(this.coinsList, {symbol: this.moeda})
-      this.compra.usd = moeda.price_usd
-      this.compra.btc = moeda.price_btc
+      let moeda             = _.find(this.coinsList, {symbol: this.form.moeda})
+      this.form.compra.usd  = moeda.price_usd
+      this.form.compra.btc  = moeda.price_btc
+    },
+
+    cancel() {
+      this.modal_moeda = false
+    },
+
+    clean() {
+      this.$refs['modal-form'].resetFields();
     }
   }
 }
 </script>
 
-<style scoped>
-.moedaform .ivu-modal-body{
-  padding: 0 !important;
-}
-.moedaform .ivu-modal-body .ivu-row{
-  padding: 16px 16px 0;
-}
-.moedaform .ivu-modal-body .ivu-row.destaque{
-  background-color: #2d8cf0;
-}
-.moedaform .ivu-modal-body .ivu-row.destaque label{
-  color: #FFF;
-  font-weight: bold;
-}
-.moedaform .ivu-select-item small{
-  color: rgba(0,0,0,0.3);
-  font-size: 12px;
-  display: block;
-}
-.ivu-input-group-prepend span{
-  display: inline-block;
-  width: 30px;
-  text-align: right;
+<style lang='scss' scoped>
+
+.el-dialog{
+
+  .el-select-item small{
+    color: rgba(0,0,0,0.3);
+    font-size: 12px;
+    display: block;
+  }
+
+  .el-input-group__prepend span{
+    display: inline-block;
+    width: 30px;
+    text-align: right;
+  }
 }
 </style>

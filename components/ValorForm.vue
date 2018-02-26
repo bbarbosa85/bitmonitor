@@ -1,24 +1,26 @@
 <template>
-  <span>
-    <a href='#' @click="open()"><Icon type="edit" /></a>
-    <Modal
-        v-model="modal_ajuste"
-        title="Ajustar Valor injetado"
-        ok-text="Salvar"
-        cancel-text="Cancelar"
-        @on-ok="save"
-        @on-cancel="cancel"
-        class-name='modal'
-        width='250px'>
-        <Form label-position="left">
-          <FormItem label="Valor" ref='valor'>
-              <i-input  v-model="valor" size='large' @keyup.enter='save' class='number'>
-                  <span slot="prepend">R$</span>
-                </i-input>
-          </FormItem>
-      </Form>
-    </Modal>
-  </span>
+  <div id='valor-dialog'>
+    <a href='#' @click="open"><i class='el-icon-edit' /></a>
+    <el-dialog
+        :visible.sync="modal_ajuste"
+        title="Ajustar Valor Aplicado"
+        width='280px'
+        :append-to-body='true'>
+
+        <el-form label-position="left" @submit='save'>
+          <el-form-item label="Valor">
+            <el-input v-model="valor" ref='focus' size='large' @keyup.enter='save'>
+                <span slot="prepend">R$</span>
+            </el-input>
+          </el-form-item>
+        </el-form>
+
+        <span slot="footer" class="dialog-footer">
+            <el-button @click="cancel()">Cancelar</el-button>
+            <el-button type="primary" @click="save()">Salvar</el-button>
+        </span>
+    </el-dialog>
+  </div>
 </template>
 
 <script>
@@ -35,16 +37,34 @@
             open () {
                 this.modal_ajuste = true
                 this.valor = this.$store.state.valorAplicado
-                this.$nextTick(() => this.$refs.valor.$el.focus())
+                this.$nextTick(() => this.$refs.focus.$el.querySelector('input').focus())
             },
             save () {
-                this.$Message.success('Valor Atualizado')
-                //salva na store e consequentemente, persiste informação
-                this.$store.commit('setValor', this.valor)
+                if(this.valor != this.$store.state.valorAplicado){
+                    //salva na store e consequentemente, persiste informação
+                    this.$store.commit('setValor', this.valor)
+                    this.$message.success('Valor Atualizado')
+                }
                 this.modal_ajuste = false
             },
             cancel () {
+                this.modal_ajuste = false
             }
         }
     }
 </script>
+
+<style lang='scss' scoped>
+    #valor-dialog{
+        display: inline;
+        text-align: left;
+
+        a {
+            font-size: 1.4em;
+            color: white;
+            border-bottom: 1px dotted white;
+            margin: 0 10px;
+        }
+    }
+</style>
+

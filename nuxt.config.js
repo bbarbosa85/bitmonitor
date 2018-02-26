@@ -22,16 +22,13 @@ module.exports = {
   ** CSS
   */
   css: [
-    'iview/dist/styles/iview.css'
+    // 'element-ui/lib/theme-chalk/index.css'
   ],
   
   /*
   ** Build configuration
   */
   build: {
-    vendor: [
-      'iview'
-    ],
     /*
     ** Run ESLint on save
     */
@@ -44,12 +41,6 @@ module.exports = {
             {
               loader: 'eslint-loader',
               options: {}
-            },
-            {
-              loader: 'iview-loader',
-              options:{
-                prefix: false
-              },
             }
           ],
           exclude: /(node_modules)/
@@ -63,8 +54,9 @@ module.exports = {
   ** Plugins
   */
   plugins: [
+    { src: '~/plugins/elementui.js', ssr: false },
     { src: '~/plugins/coinmarketcap', ssr: false },
-    { src: '~/plugins/iview.js', ssr: true },
-    { src: '~/plugins/localstorage.js', ssr: false }
+    { src: '~/plugins/localstorage.js', ssr: false },
+    { src: '~/plugins/filters.js' },
   ],
 }
