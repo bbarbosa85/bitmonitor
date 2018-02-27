@@ -6,9 +6,6 @@ export const state = () => ({
     moedas: []
 })
 
-export const actions = {
-}
-
 export const getters = {
   moedaById: (state) => (moedaId) => {
     let m = _.find(state.moedas, function(moeda) {
@@ -16,10 +13,11 @@ export const getters = {
     });
 
     return _.cloneDeep(m)
-  }
+  },
 }
 
 export const mutations = {
+
   //Atualiza valor inicial
   setValor(state, valor) {
     state.valorAplicado = valor

@@ -1,38 +1,43 @@
 <template>
   <el-container>
-<el-header height='100px'>
-        <el-row id='infos' :gutter="30" align='middle'>
-          <el-col :lg='14' class='titulo'>
-            <h1>Rastreador de Moedas <el-button icon="el-icon-refresh" @click="getCoins" :loading='table.loading' style="margin-left:50px;" class='circle'></el-button></h1>
-          </el-col>
-          <el-col :lg='3'>
-            <h4>Dólar</h4>
-            <span><small>R$</small> {{vr_dolar | currency}} </span>
-          </el-col>
-          <el-col :lg='3' class='vr_aplicado'>
-            <h4>Valor Aplicado</h4>
-            <valor-form /> 
-            <span><small>R$</small> {{valorAplicado | currency}} </span>
-            <span class='usd'><small>U$</small> {{valorAplicado/vr_dolar | currency}} </span>
-          </el-col>
-          <el-col :lg='2'>
-            <h4>Saldo Atualizado</h4>
-            <span><small>R$</small> {{saldo.brl | currency}} </span>
-            <span class='usd'><small>U$</small> {{saldo.usd | currency}} </span>
-          </el-col>
-          <el-col :lg='2' class='lucros'>
-            <h4>Lucros</h4>
-            <span :class='this.formatClass(profit.brl)'> {{profit.brl | currency}}<small>%</small></span>
-          </el-col>
-        </el-row>
-        <moeda-form id='add-moeda' title='Adicionar Moeda' v-on:change='getCoins'>
-          <i class='el-icon-plus' style='font-size: 1.2em'></i>
-        </moeda-form>
+    <el-header height='100px'>
+      <el-row id='infos' :gutter="30" align='middle'>
+        <el-col :xl='14' :lg='10' :xs='24' :sm='6' class='titulo'>
+          <h1>Rastreador de Moedas <el-button icon="el-icon-refresh" @click="getCoins" :loading='table.loading' style="margin-left:50px;" class='circle'></el-button></h1>
+        </el-col>
+        <el-col :xl='3' :lg='4' :xs='12' :sm='4'>
+          <h4>Dólar</h4>
+          <span><small>R$</small> {{vr_dolar | currency}} </span>
+        </el-col>
+        <el-col :xl='3' :lg='4' :xs='12' :sm='5' class='vr_aplicado'>
+          <h4>Valor Aplicado</h4>
+          <valor-form /> 
+          <span><small>R$</small> {{valorAplicado | currency}} </span>
+          <span class='usd'><small>U$</small> {{valorAplicado/vr_dolar | currency}} </span>
+        </el-col>
+        <el-col :xl='2' :lg='3' :xs='12' :sm='5'>
+          <h4>Saldo Atualizado</h4>
+          <span><small>R$</small> {{saldo.brl | currency}} </span>
+          <span class='usd'><small>U$</small> {{saldo.usd | currency}} </span>
+        </el-col>
+        <el-col :xl='2' :lg='3' :xs='12' :sm='4' class='lucros'>
+          <h4>Lucros</h4>
+          <span :class='this.formatClass(profit.brl)'> {{profit.brl | currency}}<small>%</small></span>
+        </el-col>
+      </el-row>
+      <moeda-form id='add-moeda' title='Adicionar Moeda' v-on:change='getCoins' btn-class='circle'>
+        <i class='el-icon-plus' style='font-size: 1.2em'></i>
+      </moeda-form>
     </el-header>
     
+
     <el-main :style="{margin: '120px 0 0'}">
 
-      <el-table v-loading='table.loading' :data='table.coins' style="width: 100%" border stripe :default-sort = "{prop: 'name', order: 'ascending'}">
+      <el-table v-loading='table.loading' :data='table.coins' :height='600' style="width: 100%" border stripe :default-sort = "{prop: 'name', order: 'ascending'}" @row-dblclick='editMoeda'>
+        
+        <!-- Exchange -->
+        <el-table-column prop='exchange' label='Exchange' sortable sort-by="[exchange, name]"/>
+
         <!-- Moeda -->
         <el-table-column prop='name' label='Moeda' sortable sort-by="name">
           <template slot-scope='scope'>
@@ -43,21 +48,8 @@
           </template>
         </el-table-column>
         
-        <!-- Exchange -->
-        <el-table-column prop='exchange' label='Exchange' sortable sort-by="[exchange, name]"/>
-        
         <!-- Quantidade -->
         <el-table-column prop='quantidade' label='Qtd' align='right' sortable sort-by="[quantidade, name]" />
-
-        <!-- Valor -->
-        <el-table-column label='Valor Atual' sortable align='right'>
-          <template slot-scope='scope'>
-            <div>
-              <span><small>U$</small>&nbsp;<span :class='formatDiffClass(scope.row.compra.usd, scope.row.priceUSD)'>{{scope.row.priceUSD | currency}}</span></span>
-              <small v-if='scope.row.symbol!=="BTC"' class='btc'><small>BTC</small> {{scope.row.priceBTC | btc}}</small>
-            </div>
-          </template>
-        </el-table-column>
 
         <!-- Valor de Compra -->
         <el-table-column label='Valor Comprado' align='right' sortable sort-by="[compra.usd, name]" >
@@ -69,8 +61,18 @@
           </template>
         </el-table-column>
 
+        <!-- Valor -->
+        <el-table-column label='Valor Atual' sortable align='right'>
+          <template slot-scope='scope'>
+            <div>
+              <span><small>U$</small>&nbsp;<span :class='formatClass(scope.row.profitUSD)'>{{scope.row.priceUSD | currency}}</span></span>
+              <small v-if='scope.row.symbol!=="BTC"' :class='"btc " + formatClass(scope.row.profitBTC)'><small>BTC</small> {{scope.row.priceBTC | btc}}</small>
+            </div>
+          </template>
+        </el-table-column>
+
         <!-- Ganhos -->
-        <el-table-column label='Ganhos' sortable sort-by="[profitUSD, profitBTC, name]" align='right'>
+        <el-table-column label='Ganhos' sortable sort-by="[profitUSD, profitBTC, name]" align='right' width='100px'>
           <template slot-scope='scope'>
             <div>
               <span :class='formatClass(scope.row.profitUSD)'> {{scope.row.fProfitUSD}} </span>
@@ -80,7 +82,7 @@
         </el-table-column>
 
         <!-- Total -->
-        <el-table-column label='Total' sortable sort-by="[totalUSD, name]" align='right'>
+        <el-table-column label='Total' sortable sort-by="[totalUSD, name]" align='right' prop='total'>
           <template slot-scope='scope'>
             <div>
               <span><small>U$</small> {{scope.row.totalUSD | currency}}</span>
@@ -90,7 +92,15 @@
         </el-table-column>
 
         <!-- Ações -->
-        <el-table-column label='' align='center' width='100px'>
+        <el-table-column align='center' width='50px'>
+          <template slot-scope="scope">
+              <moeda-form title='Adicionar Moeda' v-on:change='getCoins' v-on:close='scope.row.active=false' :active='scope.row.active' type='text' style='display:inline' :moedaId='scope.row.id'>
+                <i class='el-icon-edit' style='font-size: 1.2em'></i>
+              </moeda-form>
+          </template>
+        </el-table-column>
+
+        <el-table-column align='center' width='50px'>
           <template slot-scope='scope'>
               <el-popover
                 ref="delete_pop"
@@ -104,12 +114,7 @@
                 </div>
               </el-popover>
 
-              <moeda-form title='Adicionar Moeda' v-on:change='getCoins' type='text' style='display:inline' :moedaId='scope.row.id'>
-                <i class='el-icon-edit' style='font-size: 1.2em'></i>
-              </moeda-form>
-
               <a v-popover:delete_pop><i class='el-icon-delete' style='font-size: 1.2em'></i></a>
-
           </template>
         </el-table-column>
 
@@ -134,7 +139,6 @@ export default {
   data() {
     return {
       vr_dolar: 0.00,
-      formVisible: false,
 
       saldo: {
         brl: 0.00,
@@ -163,9 +167,12 @@ export default {
       'moedas'
     ])
   },
+
   mounted() {
+    //inicializa dados de moedas em memoria
     this.getCoins()
   },
+
   methods: {
     getCoins: function() {
       this.table.loading = true
@@ -186,8 +193,13 @@ export default {
             console.error('Falha ao carregar moedas: Moeda não informada c/ id ' + moeda.id)
             return
           }
-
           let infos = coins.get(moeda.moeda)
+
+          if(infos == undefined){
+            console.log(coins.data)
+            console.error('Falha ao carregar dados da moeda', moeda)
+            return
+          } 
 
           // Calcula e inclui informações na moeda
           moeda.name       = infos.name
@@ -202,6 +214,7 @@ export default {
           moeda.totalUSD   = infos.price_usd * moeda.quantidade
           moeda.totalBTC   = infos.price_btc * moeda.quantidade
           moeda.popdelete  = false
+          moeda.active     = false
 
           //soma saldo total
           saldo.brl   += moeda.totalBRL
@@ -232,15 +245,9 @@ export default {
         return 'red'
     },
 
-    formatDiffClass(valueA, valueB){
-      if(!valueA || !valueB) 
-        return ''
-      else if(valueA > valueB)
-        return 'green'
-      else if(valueA < valueB)
-        return 'red'
-      else
-        return ''
+    editMoeda(row, event){
+      console.log(row)
+      row.active = true
     },
 
     deleteMoeda(moedaID){
@@ -250,7 +257,7 @@ export default {
         type: 'success',
         message: 'Moeda removida com sucesso'
       })
-    }
+    },
 
   }
 }

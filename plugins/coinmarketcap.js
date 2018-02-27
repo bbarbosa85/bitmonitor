@@ -3,5 +3,5 @@
 var CoinMarketCap = require("node-coinmarketcap")
 export const coinMkt = new CoinMarketCap({
   events: true,
-  convert: "BRL"
+  convert: "BRL&limit=0"
 })

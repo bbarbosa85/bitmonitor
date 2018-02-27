@@ -1,16 +1,16 @@
 <template>
   <div class='moeda-dialog'>
-    <el-button :type='type' size='large' class='circle' @click="open()">
+    <el-button :type='type' size='large' :class='btnClass' @click="open()">
       <slot></slot>
     </el-button>
     <el-dialog
-      :visible.sync="modal_moeda"
+      :visible.sync="visible"
       :title="title"
       width='430px'
       id='moeda-form'
       :append-to-body='true'
       style="padding:0"
-      @close='clean'>
+      @close='close'>
 
       <el-form ref="modal-form" :model='form' label-width="140px" :rules="rules">
         <el-form-item label="Moeda" prop='moeda'>
@@ -42,7 +42,7 @@
 
       <span slot="footer" class="dialog-footer">
           <el-button type="primary" @click="submit">Salvar</el-button>
-          <el-button @click="cancel">Cancelar</el-button>
+          <el-button @click="close">Cancelar</el-button>
       </span>
     </el-dialog>
   </div>
@@ -59,15 +59,25 @@ export default {
       type: String
     },
 
-    type: {
-      type: String,
-      default: 'primary'
+    active: {
+      type: Boolean,
+      default: false
     },
 
     moedaId: {
       type: String,
       default: null
-    }
+    },
+
+    type: {
+      type: String,
+      default: 'primary'
+    },
+
+    btnClass: {
+      type: String,
+      default: ''
+    },
   },
 
   data () {
@@ -107,10 +117,11 @@ export default {
 
         coinsList: {},
         exchangeList: [
-          'Binance',
-          'BitFinex',
           'BitcoinTrade',
+          'BitFinex',
+          'Binance',
           'Bittrex',
+          'BleuTrade',
           'FoxBit',
         ],
 
@@ -145,6 +156,16 @@ export default {
   computed: {
     equivalenciaUSD: function(){
       return this.form.compra.usd * this.form.quantidade
+    },
+    visible: {
+      get: function(){
+        //Retornando dependencia com active e modal_moeda
+        if(this.active) {
+          this.open()
+        }
+        return this.modal_moeda
+      },
+      set: function(value){}
     }
   },
 
@@ -153,13 +174,8 @@ export default {
     open () {
       this.modal_moeda = true
 
-      //Adicionando moeda
-      if(this.moedaId == null){
-        //coloca o foco no campo de moeda
-        // this.$nextTick(() => this.$refs.focus.$el.querySelector('input').focus())
-      }
       //Editando moeda ja salva
-      else{
+      if(this.moedaId != null){
         this.form = this.$store.getters.moedaById(this.moedaId)
       }
     },
@@ -186,9 +202,9 @@ export default {
 
       //salva na store e consequentemente, persiste informação
       this.$store.commit('saveMoeda', _.cloneDeep(this.form))
-      this.$emit('change')
       this.$message.success('Valor Atualizado')
-      this.modal_moeda = false
+      this.close()
+      this.$emit('change')
     },
 
     updateValues(){
@@ -199,13 +215,12 @@ export default {
       this.form.compra.btc  = moeda.price_btc
     },
 
-    cancel() {
+    close() {
       this.modal_moeda = false
-    },
-
-    clean() {
       this.$refs['modal-form'].resetFields();
+      this.$emit('close')
     }
+
   }
 }
 </script>
