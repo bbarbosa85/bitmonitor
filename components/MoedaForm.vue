@@ -20,16 +20,16 @@
         </el-form-item>
 
         <el-form-item label='Valor de Compra' prop='compra'>
-          <el-input v-model="form.compra.usd" size='large' class="number" style="width: 100%;">
+          <el-input v-model="form.compra.usd" size='large' class="number" style="width: 100%;" v-currency>
             <span slot="prepend">U$</span>
           </el-input>
-          <el-input v-model="form.compra.btc" size='large' class="number" style="margin-top:5px; width: 100%;">
+          <el-input v-model="form.compra.btc" size='large' class="number" style="margin-top:5px; width: 100%;" v-btc>
             <span slot="prepend">BTC</span>
           </el-input>
         </el-form-item>
 
         <el-form-item label="Quantidade" prop='quantidade'>
-            <el-input v-model="form.quantidade" size='large' class="number" style="width: 100%;"></el-input>
+            <el-input v-model="form.quantidade" size='large' class="number" style="width: 100%;" v-btc></el-input>
             <div v-if='form.moeda!=="" && form.quantidade>0' class='text-right'><small>Equivalencia U$: {{equivalenciaUSD | currency}}</small></div>
         </el-form-item>
     
@@ -51,9 +51,14 @@
 <script>
 import { mapState } from 'vuex'
 import { coinMkt } from '@/plugins/coinmarketcap'
+import {currencyMixin, btcMixin} from '@/plugins/mixins'
 import * as _ from 'lodash'
 
 export default {
+  mixins: [
+    currencyMixin, 
+    btcMixin
+  ],
   props: {
     title: {
       type: String
@@ -155,7 +160,7 @@ export default {
 
   computed: {
     equivalenciaUSD: function(){
-      return this.form.compra.usd * this.form.quantidade
+      return this.currencyValue(this.form.compra.usd) * this.currencyValue(this.form.quantidade)
     },
     visible: {
       get: function(){
@@ -166,6 +171,13 @@ export default {
         return this.modal_moeda
       },
       set: function(value){}
+    },
+    formatedForm(){
+      let formData = _.cloneDeep(this.form)
+      formData.quantidade = this.currencyValue(formData.quantidade)
+      formData.compra.usd = this.currencyValue(formData.compra.usd)
+      formData.compra.btc = this.btcValue(formData.compra.btc)
+      return formData
     }
   },
 
@@ -201,7 +213,7 @@ export default {
       }
 
       //salva na store e consequentemente, persiste informação
-      this.$store.commit('saveMoeda', _.cloneDeep(this.form))
+      this.$store.commit('saveMoeda', this.formatedForm)
       this.$message.success('Valor Atualizado')
       this.close()
       this.$emit('change')
@@ -211,15 +223,15 @@ export default {
       if(this.moeda=='') return
       //Recupera valor selecionado e atualiza valores relacionados
       let moeda             = _.find(this.coinsList, {symbol: this.form.moeda})
-      this.form.compra.usd  = moeda.price_usd
-      this.form.compra.btc  = moeda.price_btc
+      this.form.compra.usd  = this.$options.filters.currency(moeda.price_usd)
+      this.form.compra.btc  = this.$options.filters.btc(moeda.price_btc)
     },
 
     close() {
       this.modal_moeda = false
       this.$refs['modal-form'].resetFields();
       this.$emit('close')
-    }
+    },
 
   }
 }

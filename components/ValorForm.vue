@@ -9,7 +9,7 @@
 
         <el-form label-position="left" @submit='save'>
           <el-form-item label="Valor">
-            <el-input v-model="valor" ref='focus' size='large' @keyup.enter='save'>
+            <el-input v-model="valor" ref='focus' size='large' @keyup.enter='save' v-currency>
                 <span slot="prepend">R$</span>
             </el-input>
           </el-form-item>
@@ -25,8 +25,10 @@
 
 <script>
     import { mapState } from 'vuex'
+    import {currencyMixin} from '@/plugins/mixins'
     export default {
         props: {},
+        mixins: [currencyMixin],
         data () {
             return {
                 modal_ajuste: false,
@@ -40,9 +42,10 @@
                 this.$nextTick(() => this.$refs.focus.$el.querySelector('input').focus())
             },
             save () {
-                if(this.valor != this.$store.state.valorAplicado){
+                let val = this.currencyValue(this.valor)
+                if(val != this.$store.state.valorAplicado){
                     //salva na store e consequentemente, persiste informação
-                    this.$store.commit('setValor', this.valor)
+                    this.$store.commit('setValor', val)
                     this.$message.success('Valor Atualizado')
                 }
                 this.modal_ajuste = false
