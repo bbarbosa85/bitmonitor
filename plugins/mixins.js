@@ -36,9 +36,9 @@ export const btcMixin = {
   directives: {
     btc(el, binding) {
       const $el = el.getElementsByTagName("input")[0]
-      if(!$el || $el.dataset.currency) return
+      if(!$el || $el.dataset.btc) return
       //marcando elemento como já tendo evento
-      $el.dataset.currency = true
+      $el.dataset.btc = true
     
       // Como usar: https://github.com/RobinHerbots/Inputmask
       Inputmask("numeric", {
