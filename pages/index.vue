@@ -15,7 +15,7 @@
           <span><small>R$</small> {{valorAplicado | currency}} </span>
           <span class='usd'><small>U$</small> {{valorAplicado/vr_dolar | currency}} </span>
         </el-col>
-        <el-col :xl='2' :lg='3' :xs='12' :sm='5'>
+        <el-col :xl='2' :lg='3' :xs='12' :sm='5' class='saldo'>
           <h4>Saldo Atualizado</h4>
           <span><small>R$</small> {{saldo.brl | currency}} </span>
           <span class='usd'><small>U$</small> {{saldo.usd | currency}} </span>
@@ -25,15 +25,12 @@
           <span :class='this.formatClass(profit.brl)'> {{profit.brl | currency}}<small>%</small></span>
         </el-col>
       </el-row>
-      <moeda-form id='add-moeda' title='Adicionar Moeda' v-on:change='getCoins' btn-class='circle'>
-        <i class='el-icon-plus' style='font-size: 1.2em'></i>
-      </moeda-form>
     </el-header>
     
 
     <el-main :style="{margin: '120px 0 0'}">
 
-      <el-table v-loading='table.loading' :data='table.coins' :height='600' style="width: 100%" border stripe :default-sort = "{prop: 'name', order: 'ascending'}" @row-dblclick='editMoeda'>
+      <el-table v-loading='table.loading' :data='table.coins' style="width: 100%" border stripe :default-sort = "{prop: 'name', order: 'ascending'}" @row-dblclick='editMoeda'>
         
         <!-- Exchange -->
         <el-table-column prop='exchange' label='Exchange' sortable sort-by="[exchange, name]"/>
@@ -52,7 +49,7 @@
         <el-table-column prop='quantidade' label='Qtd' align='right' sortable sort-by="[quantidade, name]" />
 
         <!-- Valor de Compra -->
-        <el-table-column label='Valor Comprado' align='right' sortable sort-by="[compra.usd, name]" >
+        <el-table-column label='Valor Comprado' align='right' sortable sort-by="[compra.usd, name]">
           <template slot-scope='scope'>
             <div>
               <span><small>U$</small> {{scope.row.compra.usd | currency}}</span>
@@ -62,7 +59,7 @@
         </el-table-column>
 
         <!-- Valor -->
-        <el-table-column label='Valor Atual' sortable align='right'>
+        <el-table-column label='Valor Atual' align='right' sortable sort-by="[priceUSD, priceBTC, name]" :sort-method='propSort("priceUSD")'>
           <template slot-scope='scope'>
             <div>
               <span><small>U$</small>&nbsp;<span :class='formatClass(scope.row.profitUSD)'>{{scope.row.priceUSD | currency}}</span></span>
@@ -72,7 +69,7 @@
         </el-table-column>
 
         <!-- Ganhos -->
-        <el-table-column label='Ganhos' sortable sort-by="[profitUSD, profitBTC, name]" align='right' width='100px'>
+        <el-table-column label='Ganhos' sortable sort-by="[profitUSD, profitBTC, name]" :sort-method='propSort("profitUSD")' align='right' width='100px'>
           <template slot-scope='scope'>
             <div>
               <span :class='formatClass(scope.row.profitUSD)'> {{scope.row.fProfitUSD}} </span>
@@ -82,7 +79,7 @@
         </el-table-column>
 
         <!-- Total -->
-        <el-table-column label='Total' sortable sort-by="[totalUSD, name]" align='right' prop='total'>
+        <el-table-column label='Total' sortable sort-by="[totalUSD, name]" :sort-method='propSort("totalUSD")' align='right' prop='total'>
           <template slot-scope='scope'>
             <div>
               <span><small>U$</small> {{scope.row.totalUSD | currency}}</span>
@@ -94,7 +91,7 @@
         <!-- Ações -->
         <el-table-column align='center' width='50px'>
           <template slot-scope="scope">
-              <moeda-form title='Adicionar Moeda' v-on:change='getCoins' v-on:close='scope.row.active=false' :active='scope.row.active' type='text' style='display:inline' :moedaId='scope.row.id'>
+              <moeda-form title='Editar Moeda' v-on:change='getCoins' v-on:close='scope.row.active=false' :active='scope.row.active' type='text' style='display:inline' :moedaId='scope.row.id'>
                 <i class='el-icon-edit' style='font-size: 1.2em'></i>
               </moeda-form>
           </template>
@@ -122,7 +119,10 @@
 
       </el-table>
     </el-main>
-    <el-footer class="layout-footer-center text-right" :style="{textAlign: 'right'}">2018 &copy; Batora.net</el-footer>    
+    <el-footer class="layout-footer-center text-right" :style="{textAlign: 'center'}">2018 &copy; Batora.net</el-footer>
+    <moeda-form id='add-moeda' title='Adicionar Moeda' v-on:change='getCoins' btn-class='circle shadow'>
+        <i class='el-icon-plus' style='font-size: 1.2em'></i>
+      </moeda-form>
   </el-container>
 </template>
 
@@ -259,6 +259,13 @@ export default {
       })
     },
 
+    //Ordenacao usando propriedades da tabela
+    propSort(prop){
+      return function(a, b){
+        return (a[prop] > b[prop]) ? 1 : ((a[prop] < b[prop]) ? -1 : 0)
+      }
+    }
+
   }
 }
 </script>
@@ -269,8 +276,8 @@ export default {
   h4{ color: rgba(255,255,255,0.5);  line-height: 20px; margin: 0;  text-transform: uppercase; font-size: 12px; font-weight: normal; text-align: right; }
 
   .el-header{
-    background-color: #576271;
-    color: #333;
+    background-color: #23282f;
+    color: #FFF;
     width: 100%;
     position: fixed;
     z-index: 10;
@@ -304,7 +311,6 @@ export default {
       }
       &.el-col > span {
         font-size: 2.5em;
-        text-shadow: 0 1px 5px rgba(0,0,0,0.8);
         padding-top: 6px;
 
         small{
@@ -313,11 +319,14 @@ export default {
       }
     }
 
+    .saldo > span{
+      color: #F5A623;
+    }
+
     .vr_aplicado{
       text-align: right;
       
       > span{
-        color: #F5A623;
         display: inline-block;
       }
 
@@ -344,10 +353,16 @@ export default {
 
   #add-moeda {
     display: block;
-    position: relative;
+    position: fixed;
     z-index: 5;
     text-align: center;
-    top: -25px;
+    bottom: 20px;
+    right: 50px;
+
+    > button i{
+      font-size: 1.8em !important;
+      font-weight: 700;
+    }
   }
 
   .el-form-item{

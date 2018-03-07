@@ -1,9 +1,22 @@
 let Inputmask = process.browser ? require("inputmask") : ''
 
+/** 
+ * Trata substituição de valores numericos
+ */
+let floatValue = (val) => {
+  //verifica se e numero
+  if(!isNaN(parseFloat(val)) && isFinite(val)){
+    return parseFloat(val)
+  }else{
+    //substitui ocorrencia de caracteres nao numericos
+    return parseFloat(val.replace(/[^0-9-,]/g, '').replace(',', '.'))
+  }
+}
+
 export const currencyMixin = {
   methods: {
     currencyValue(val){
-      return parseFloat(val.replace(/[^0-9-,]/g, '').replace(',', '.'))
+     return floatValue(val) 
     }
   },
   directives: {
@@ -30,7 +43,7 @@ export const currencyMixin = {
 export const btcMixin = {
   methods: {
     btcValue(val){
-      return parseFloat(val.replace(/[^0-9-,]/g, '').replace(',', '.'))
+      return floatValue(val)
     }
   },
   directives: {
